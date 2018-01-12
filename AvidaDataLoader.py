@@ -24,15 +24,32 @@ def load_generic(path, trailing_space=False, columns=None):
 
 def load_spatial_reactions(path):
     """
-    Load a spatial resource data file.
+    Load a spatial reaction data file.
 
-    :param: the path of the data file
+    :param path: the path of the data file
 
     :return: a pandas dataframe
     """
     data = load_generic(path)
     nrows,ncols = data.shape
     colnames = ['update','reaction']
+    cellcols = map(lambda x: f'cell_{x}', range(0,ncols-2))
+    colnames.extend(cellcols)
+    data.columns = colnames
+    return data
+
+
+def load_spatial_resources(path):
+    """
+    Load a spatial resource data file.
+
+    :param path:  the path of the data file
+
+    :return: a pandas dataframe
+    """
+    data = load_generic(path)
+    nrows,ncols = data.shape
+    colnames = ['update','resource']
     cellcols = map(lambda x: f'cell_{x}', range(0,ncols-2))
     colnames.extend(cellcols)
     data.columns = colnames
