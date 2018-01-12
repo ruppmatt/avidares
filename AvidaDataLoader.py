@@ -37,5 +37,3 @@ def load_spatial_reactions(path):
     colnames.extend(cellcols)
     data.columns = colnames
     return data
-
-def load_
