@@ -23,7 +23,7 @@ class FactoredCategoricalHeatmapAnimation:
 
     def __init__(self, heatmap_data, grid_shape, dims=(1,),
                  title='', cmap=None, use_pbar=True, interval=50,
-                 post_plot=[], env_str='', event_str='', **kw):
+                 post_plot=[], env_str='', event_str='', lower_mask_thresh=0.0, **kw):
         self._ndx_t = 0
         self._ndx_cat = 1
         self._ndx_cell = 2
@@ -57,6 +57,7 @@ class FactoredCategoricalHeatmapAnimation:
             self._cmap = ColorMaps.green if cmap is None else cmap
         else:
             self._cmap = self._multi_cat_cmap if cmap is None else cmap
+        self._lower_mask_thresh = lower_mask_thresh
 
 
     def _prepare_data(self):
@@ -341,9 +342,14 @@ class FactoredCategoricalHeatmapAnimation:
                         data.append(bdata[u_ndx].reshape(grid_x, grid_y, 3))
                         expr_data = heatmap_data[e_ndx][1]
                         #pdb.set_trace()
-                        update_data = expr_data[expr_data.iloc[:,self._setup._ndx_t]==update].iloc[:,self._setup._ndx_cell:]
+                        update_data = \
+                            expr_data[expr_data.iloc[:,self._setup._ndx_t]==update]\
+                            .iloc[:,self._setup._ndx_cell:]
                         sum_update_data = update_data.sum(axis=0)
-                        mask.append(np.ma.masked_values(sum_update_data, 0.0).reshape(grid_x, grid_y))
+                        mask.append(
+                            np.ma.masked_less_equal(
+                                sum_update_data, self._setup._lower_mask_thresh)\
+                            .reshape(grid_x, grid_y))
                     yield u_ndx, update, data, mask
 
             else:
@@ -354,11 +360,17 @@ class FactoredCategoricalHeatmapAnimation:
                     update = heatmap_data[0][1].iloc[ndx,self._setup._ndx_t]
                     for factors, expr_data in heatmap_data:
                         data.append(\
-                            expr_data.iloc[ndx,self._setup._ndx_cell:].astype('float')\
+                            expr_data.iloc[ndx,self._setup._ndx_cell:]\
+                            .astype('float')\
                             .values.reshape(self._setup._grid_shape))
-                        update_data =  expr_data[expr_data.iloc[:,self._setup._ndx_t]==update].iloc[:,self._setup._ndx_cell:]
+                        update_data = \
+                            expr_data[expr_data.iloc[:,self._setup._ndx_t]==update]\
+                            .iloc[:,self._setup._ndx_cell:]
                         sum_update_data = update_data.sum(axis=0)
-                        mask.append(np.ma.masked_values(sum_update_data, 0.0).reshape(self._setup._grid_shape))
+                        mask.append(
+                            np.ma.masked_less_equal(
+                                sum_update_data, self._setup._lower_mask_thresh)\
+                            .reshape(self._setup._grid_shape))
                     yield ndx, update, data, mask
 
             raise StopIteration
