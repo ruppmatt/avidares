@@ -32,7 +32,7 @@ class FactoredCategoricalHeatmapAnimation:
         self._factors = None
         self._categories = None    #Name of resources
         self._is_multi = None     #Are we plotting multiple categories?
-        self._grid_shape = grid_shape  #The size of the Avida world
+        self._grid_shape = (grid_shape[1], grid_shape[0])  #The size of the Avida world
         self._num_frames = None   #How many frames are we drawing?
         self._interval = interval  #How fast should the animation go?
         self._to_draw = None    #With blitting, what artists do we need to draw?
