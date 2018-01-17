@@ -32,7 +32,7 @@ class FactoredCategoricalHeatmapAnimation:
         self._factors = None
         self._categories = None    #Name of resources
         self._is_multi = None     #Are we plotting multiple categories?
-        self._grid_shape = grid_shape  #The size of the Avida world
+        self._grid_shape = (grid_shape[1], grid_shape[0]) #The rows and columns of data
         self._num_frames = None   #How many frames are we drawing?
         self._interval = interval  #How fast should the animation go?
         self._to_draw = None    #With blitting, what artists do we need to draw?
@@ -347,8 +347,8 @@ class FactoredCategoricalHeatmapAnimation:
                             .iloc[:,self._setup._ndx_cell:]
                         sum_update_data = update_data.sum(axis=0)
                         mask.append(
-                            np.ma.masked_less_equal(
-                                sum_update_data, self._setup._lower_mask_thresh)\
+                            np.ma.masked_values(
+                                sum_update_data, 0.0)\
                             .reshape(grid_x, grid_y))
                     yield u_ndx, update, data, mask
 
@@ -368,8 +368,8 @@ class FactoredCategoricalHeatmapAnimation:
                             .iloc[:,self._setup._ndx_cell:]
                         sum_update_data = update_data.sum(axis=0)
                         mask.append(
-                            np.ma.masked_less_equal(
-                                sum_update_data, self._setup._lower_mask_thresh)\
+                            np.ma.masked_values(
+                                sum_update_data, 0.0)\
                             .reshape(self._setup._grid_shape))
                     yield ndx, update, data, mask
 
